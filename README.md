@@ -1,200 +1,122 @@
-# 🛡️ SENTRY INTEL
+# Sentry Intel
 
-> **Autonomous Multi-Source Defence Intelligence & Early Threat Warning Platform**  
-> *Developed for Zinnovatio 4.0 Hackathon — Track: AI for Defence, Aerospace and National Security*  
-> **Team:** Last Minute Legends | **Lead:** Sidak Sethi-Singh
+**An open-source intelligence dashboard for exploring defence and security reports.**
 
----
+Sentry Intel collects public news, turns reports into scored alerts, and gives users a single place to read summaries, sources, timelines, and suggested response actions. It was built by **Last Minute Legends** for Zinnovatio 4.0's AI for Defence, Aerospace and National Security track.
 
-## ⚡ Executive Overview
+> **Demo notice:** The bundled articles and summaries are illustrative sample data, not verified live intelligence. Treat alerts, scores, summaries, citations, and response suggestions as starting points for human review—not operational advice.
 
-**Sentry Intel** is an AI-powered defence intelligence platform that monitors multi-domain security feeds across land borders, maritime choke points, critical national infrastructure, and aerospace frontiers. 
+## What it does
 
-Unlike traditional news scrapers or passive dashboards, Sentry Intel solves the core operational challenges faced by defence and security analysts:
-1. **Multi-Source Corroboration & Threat Auditing:** Synthesizes multiple independent wire reports into a single unified incident alert with automated chronological timeline reconstruction, entity recognition, and an auditable **"Why This Score"** justification.
-2. **"What To Do" Operational Response Playbooks:** Turns raw threat alerts into immediate, actionable response guidance with strict role separation for defence analysts and civilian safety authorities.
-3. **Trust & Accuracy Groundedness Engine:** Rigorous mathematical entity verification, confidence badging, and strict zero-hallucination citations.
+- **Dashboard:** Browse alerts by severity and inspect their summaries, citations, timelines, and response playbooks.
+- **Manual news ingestion:** Fetch recent Google News India defence and security RSS results, normalize and deduplicate them, and generate alerts. If the feed is unavailable or empty, ingestion uses bundled sample articles.
+- **Threat scoring:** Assign a 0–100 score and severity using explainable keyword and source-count heuristics. This is not a trained threat classifier.
+- **Ask Sentry and morning brief:** Retrieve relevant alerts using keyword, entity, location, and recency signals, then generate an answer or brief. Optional LLM providers are used where configured; extractive generation provides a fallback.
+- **Faithfulness audit:** Check selected named entities and citations in the bundled summaries against the bundled articles. This check does not prove that summaries are factually correct or free of hallucinations.
 
----
+## How it works
 
-## 🚀 Key Features
-
-### 1. 🛡️ Operational Response Playbooks ("What to do")
-Every intelligence dashboard answers *"What happened?"* Sentry Intel answers the vital follow-up question: **"What do we do about it?"**
-- **Two Distinct Audiences Kept Strictly Separated:**
-  - **Intelligence & Security Analyst Actions:** Escalation protocols, radar cross-checking, electronic warfare status verification, and command leadership briefing.
-  - **Civilian Public Safety Steps:** Displayed **ONLY** for humanitarian crises, natural disasters (e.g., Cyclone Dana), or civilian cyber fraud (evacuation guidance, safe shelter movement, power line precautions). Never shown for tactical military operations.
-- **Priority Categorization:** Badged by operational urgency (`IMMEDIATE`, `HIGH`, `ROUTINE`). Critical alerts feature prominent high-visibility glowing protocol headers at the top of the detail modal.
-- **Verified Official Authority Portals:** Direct links to certified authorities (CERT-In, NDMA, IMD, Indian Navy, Ministry of Defence, ReliefWeb).
-- **Mandatory Safety Disclaimer:**  
-  > *⚠️ Guidance only — always follow your local authorities' instructions.*
-
-### 2. 🔍 Ask Sentry — Context-Grounded RAG Q&A
-- Interactive natural-language interrogation engine across all cached intelligence alerts.
-- **Zero Hallucination Guarantee:** Employs keyword, entity, and location retrieval with recency boosting. Synthesizes concise answers strictly citing exact Alert IDs (`[alert-inc-...]`). If no corroborating data exists, it plainly states *"No matching alerts found"* rather than guessing.
-- Clickable citation tags open full tactical alert dossiers directly in the UI.
-- Built-in **AI Morning Brief** generator for command morning briefings.
-
-### 3. ⚖️ Multi-Source Corroboration & "Why This Score" Justification
-- Clusters related wire reports into single incident dossiers (e.g., cross-border UAV incursions, regional grid cyber attacks, Gulf of Aden anti-piracy boardings).
-- Automatically calculates a transparent threat score (0–100) and severity rating (`LOW`, `MEDIUM`, `HIGH`, `CRITICAL`).
-- Emits an honest, auditable sentence explaining *why* the threat received its rating (e.g., *“HIGH because: cross-border airspace breach + combat scramble / tactical special forces deployment + corroborated by 3 independent sources.”*).
-
-### 4. ⚡ Triple-Redundant Zero-Crash Architecture
-- **Tier 1:** GroqCloud ultra-fast inference (`openai/gpt-oss-120b` at 500+ tokens/second).
-- **Tier 2:** OpenAI fallback (`gpt-4o-mini`).
-- **Tier 3:** Deterministic, offline-capable extractive NLP summarization & chronological timeline parser that guarantees zero-crash uptime even under complete network failure or API rate limits.
-
----
-
-## 🎯 Trust & Accuracy Pack
-
-### 1. 📊 Demo Data & Evaluation Transparency
-> **Honesty Notice:**  
-> The 50 cached threat alerts in this repository represent a curated **evaluation and benchmarking dataset** created for hackathon demonstration and stress-testing. They represent realistic, illustrative defence and national security incidents — **not a live classified feed or real-time military network**.  
-> The Sentry Intel pipeline architecture is designed with modular ingest endpoints (`/api/alerts`, `/api/ask`) to support live wire ingestion from open-source news APIs and RSS feeds in production.
-
-### 2. 🏷️ Confidence Badges
-Every alert derives a transparent confidence tier:
-- **`High Confidence` (●)**: Corroborated by 2 or more independent sources with agreeing tactical details.
-- **`Medium Confidence` (◐)**: Derived from a single credible, authoritative source (e.g., PIB Defence, CERT-In, IMD, ANI Desk) with complete chronological details.
-- **`Low Confidence` (○)**: Initial wire bulletin with thin or unconfirmed operational details.
-
-### 3. 🧪 Faithfulness & Groundedness Audit (`scripts/verify-faithfulness.ts`)
-To eliminate hallucinations, Sentry Intel includes an automated audit test suite that validates every cached summary against its underlying source articles.
-
-```bash
-npm run verify-faithfulness
+```text
+Google News RSS ─┐
+                 ├─> manual ingestion ─> scoring + summarization ─> alert storage
+Sample articles ─┘                                      │                 │
+                                               sources + timeline     dashboard / Ask Sentry
 ```
 
-#### Latest Automated Audit Verification Results:
-| Metric | Result | Status |
-| :--- | :--- | :--- |
-| **Unique Incident Alerts Evaluated** | **20** | ✅ Analyzed |
-| **Named Entities Checked (Actors, Locations, Assets)** | **51** | ✅ Evaluated |
-| **Entities Strictly Grounded in Source Text** | **51 / 51** | **100% PASS** |
-| **Article Citations Checked** | **30** | ✅ Evaluated |
-| **Article Citations Successfully Resolved** | **30 / 30** | **100% PASS** |
-| **Invented / Hallucinated Entities** | **0** | **0.0% (Zero)** |
-| **Overall Faithfulness Verdict** | **100% PASS** | 🛡️ **VERIFIED** |
+The feed supplies headlines and snippets; it does not necessarily supply full article text. Google News URLs may lead through its news service. Ingestion is **manual**, not scheduled. Sample articles can be used when live fetching fails, and the API reports which source was selected. A successful request alone does not prove articles were saved: check its `processed`, `skipped`, `failed`, and `errors` fields.
 
----
+## Get started
 
-## ⚠️ What's Unfinished / Known Limitations
+### Requirements
 
-We believe in engineering transparency — knowing boundaries is the foundation of mission-critical systems:
+- Node.js **24** and npm. The project scripts use Node's TypeScript stripping support.
+- Internet access to install packages and fetch live news. The bundled sample dashboard can be used without a news connection once dependencies are installed.
 
-1. **Curated Evaluation Dataset:**  
-   The current feed operates on 50 cached alert entries derived from 30 structured defence reports. Automated web-crawlers for behind-paywall or air-gapped military networks are intentionally decoupled in the hackathon demo to ensure 100% reproducible judge evaluation.
-2. **Hybrid Scoring Heuristics:**  
-   Threat scores (0–100) are computed using an auditable hybrid scoring function combining domain keywords, military asset involvement, civilian risk factors, and source corroboration multipliers. In full production, this would be augmented with an automated ML Bayesian probability model.
-3. **Public LLM Provider Rate Limiting:**  
-   External LLM APIs (Groq / OpenAI) occasionally experience HTTP 429 rate limits during rapid bulk batching. Sentry Intel handles this gracefully by switching seamlessly to its deterministic extractive fallback engine with zero application downtime.
-4. **Offline Map Tiles:**  
-   The UI currently provides tactical geospatial location tags; full GIS vector-tile layers (Cesium/MapLibre) are architected for Phase 2 integration.
+### Install and run
 
----
-
-## 🏗️ Architecture & Alert Contract
-
-All extensions to the Alert contract are strictly **additive and backward-compatible**:
-
-```typescript
-export interface Alert {
-  // Core Contract (Unchanged)
-  id: string;
-  article_id: string;
-  severity: "low" | "medium" | "high" | "critical";
-  score: number;
-  summary: string;
-  sources: { name: string; url: string }[];
-  timeline_events: { time: string; event: string }[];
-  created_at: string;
-
-  // Corroboration & Audit Additions
-  score_justification?: string;
-  corroboration_count?: number;
-  corroboration_badge?: string;
-  related_article_ids?: string[];
-  entities?: { name: string; category: "actor" | "location" | "asset" | "threat" }[];
-  location?: string;
-
-  // Response Playbook Additions ("What to do")
-  category?: "cyber" | "natural_disaster" | "border_security" | "maritime" | "defence_tech" | "space" | "general";
-  recommended_actions?: {
-    action: string;
-    audience: "analyst" | "civilian";
-    priority: "immediate" | "high" | "routine";
-  }[];
-  official_links?: {
-    name: string;
-    url: string;
-  }[];
-
-  // Trust & Accuracy Pack
-  confidence?: "high" | "medium" | "low";
-}
-```
-
----
-
-## 🛠️ Local Development & Quickstart
-
-### Prerequisites
-- Node.js `v20+` or `v26+`
-- npm
-
-### 1. Clone & Install Dependencies
 ```bash
-git clone https://github.com/SidakSethi-Singh/sentry_intel.git
+git clone https://github.com/dhruvsharma-0001/sentry_intel.git
 cd sentry_intel
 npm install
-```
-
-### 2. Configure Environment (Optional for LLM features)
-Create `.env` in the root directory:
-```env
-# Optional: Groq API Key (Fastest inference)
-GROQ_API_KEY=your_groq_api_key_here
-
-# Optional: OpenAI API Key
-OPENAI_API_KEY=your_openai_api_key_here
-```
-*(Note: If no API keys are provided, Sentry Intel operates automatically via its deterministic zero-crash extractive engine).*
-
-### 3. Generate / Update Summaries & Playbooks
-```bash
-npm run generate-summaries
-```
-
-### 4. Run Faithfulness Verification Suite
-```bash
-npm run verify-faithfulness
-```
-
-### 5. Run Development Server
-```bash
 npm run dev
 ```
-Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-### 6. Production Build Verification
+Open [http://localhost:3000](http://localhost:3000). No API keys or cloud database are required for the local demo. Initially, the app reads the bundled sample alerts.
+
+### Trigger ingestion
+
+With the app running, use another terminal:
+
 ```bash
-npm run build
+curl -X POST http://localhost:3000/api/ingest
 ```
 
----
+The response identifies `source` as `live` or `fallback` and includes processing counts and per-article errors. Refresh the dashboard to load the latest stored alerts. The sample articles may already have alerts, so a fallback run can legitimately skip them.
 
-## 🛡️ Safety & Responsible AI Disclaimer
+### Optional configuration
 
-> **IMPORTANT:**  
-> Sentry Intel does not invent phone numbers, street addresses, or shelter coordinates. All links route exclusively to verified official government, meteorological, and disaster response bodies (such as CERT-In, NDMA, IMD, and the Indian Navy).  
-> **Guidance only — always follow your local authorities' instructions.**
+Copy `.env.example` to `.env.local` and add only the values you need. Restart the server after changing environment variables. Never commit real keys.
 
----
+| Variable | Purpose |
+| --- | --- |
+| `GROQ_API_KEY` | Optional Groq key for summaries and Ask Sentry. |
+| `OPENAI_API_KEY` | Optional OpenAI key; used after Groq if available. |
+| `NEXT_PUBLIC_SUPABASE_URL` | Supabase project URL, if using Supabase storage. |
+| `SUPABASE_SERVICE_ROLE_KEY` | Server-only Supabase service-role key. Keep it secret. |
 
-**Built with pride by Last Minute Legends for Zinnovatio 4.0.**
+`GROK_API_KEY` is also accepted as a Groq key when it starts with `gsk_`. The other placeholders in `.env.example` are not required for this flow. Without an LLM key, the app uses extractive fallbacks.
 
-### Local demo storage
+## Storage options
 
-When neither Supabase URL nor service-role key is configured, the server uses a local JSON file at `data/local-db.json`, seeded from the bundled sample data on first use. The file is ignored by Git. Supplying both Supabase credentials selects Supabase; partial configuration is an error. Local storage is intended for a single local demo process: it is not a shared database, does not coordinate concurrent writers, and is unsuitable for serverless deployments or durable production storage. Google News RSS ingestion requires network access and may provide only headlines or snippets; sample data remains the offline fallback.
+**Local demo:** When neither the Supabase URL nor service-role key is configured, the app uses bundled sample data and writes changes to `data/local-db.json`. The file is ignored by Git. This is a single-machine, single-process demo store; it does not coordinate concurrent writers and is unsuitable for serverless or durable shared deployments.
+
+**Supabase:** Configure both the URL and service-role key and apply the SQL in `supabase/migrations/20261029021500_init_sentry_intel.sql` to your project. Partial configuration is treated as an error. Supabase integration and the end-to-end live pipeline still need verification in the target environment. The Supabase schema stores a narrower alert representation than the local demo; the dashboard and Ask Sentry integration should be checked before relying on this mode.
+
+## Commands
+
+| Command | Purpose |
+| --- | --- |
+| `npm run dev` | Start the development server. |
+| `npm run build` | Build the production app and check TypeScript. |
+| `npm start` | Start the production server after building. |
+| `npm run test:ingestion` | Run ingestion and scoring tests with mocked feed responses. |
+| `npm run verify-faithfulness` | Check bundled summaries against bundled source data. |
+| `npm run generate-summaries` | Regenerate cached summaries; review generated data changes before committing. |
+
+## API
+
+| Endpoint | Purpose |
+| --- | --- |
+| `GET /api/alerts` | List stored alerts. |
+| `GET /api/alerts/:id` | Get an alert by ID. |
+| `GET /api/stats` | Get alert counts by severity. |
+| `POST /api/ingest` | Fetch news or use fallback articles, then create alerts. |
+| `POST /api/ask` | Ask a question with `{ "question": "..." }`, or request a brief with `{ "action": "morning_brief" }`. |
+
+These endpoints are intended for the demo and do not provide an authentication system. Secure them before exposing a deployment publicly.
+
+## Project layout
+
+```text
+app/                    Dashboard and API routes
+lib/ingest.ts           Google News RSS ingestion
+lib/summarize.ts        Summaries, heuristic scoring, and alert creation
+lib/ask.ts              Alert retrieval and question answering
+lib/playbooks.ts        Suggested response actions
+lib/local-db.ts         Local demo persistence
+lib/supabase.ts         Storage interface and Supabase integration
+data/                   Bundled sample articles and summaries
+scripts/                Summary generation and faithfulness audit
+supabase/migrations/    Supabase schema
+tests/                  Ingestion and scoring tests
+```
+
+## Limitations and responsible use
+
+- Live RSS access depends on Google News and network availability; the feed has not been verified in every deployment environment.
+- Keyword-based scoring and retrieval can miss context, misclassify reports, or retrieve irrelevant results. Source counts do not independently verify agreement or source independence.
+- LLM output can contain mistakes. The faithfulness audit checks a limited set of properties; it is not a guarantee of accuracy.
+- Response suggestions are general guidance. Verify sources and follow instructions from relevant authorities.
+- This project uses public information and illustrative samples. It is not a classified intelligence system or a replacement for analysts.
+
+Built by **Last Minute Legends** for Zinnovatio 4.0.
